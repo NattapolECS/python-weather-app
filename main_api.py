@@ -34,7 +34,7 @@ async def shutdown():
 # ---------- Root ----------
 @app.get("/")
 async def read_root():
-    return {"message": "✅ ระบบ API พยากรณ์อากาศพร้อมใช้งาน!"}
+    return {"message": "✅ ระบบ API พยากรณ์อากาศพร้อมใช้งานแล้วครับ!!"}
 
 # ---------- Weather API ----------
 @app.get("/weather")
