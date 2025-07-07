@@ -5,6 +5,7 @@
 
 import logging
 import os
+import time # เพิ่มเข้ามาใหม่เพื่อหน่วงเวลา
 from datetime import datetime
 import psycopg2
 import requests
@@ -21,7 +22,7 @@ logging.basicConfig(
 # ใน GitHub Actions จะโหลดจาก Secrets ที่ตั้งค่าไว้
 # ใน Local จะโหลดจากไฟล์ .env
 load_dotenv()
-logging.info("Attempting to load environment variables...")
+logging.info("โหลดตัวแปรจากไฟล์ .env สำเร็จ") 
 
 # --- 3. CONFIGURATION ---
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -33,7 +34,7 @@ if not DATABASE_URL or not TMD_TOKEN:
     logging.critical("❌ CRITICAL: ไม่พบ DATABASE_URL หรือ TMD_TOKEN ใน Environment Variables!")
     exit(1) # หยุดการทำงานทันทีหากไม่มีข้อมูลสำคัญ
 else:
-    logging.info("✅ Environment variables loaded successfully.")
+    logging.info("✅ โหลดตัวแปลจาก env เสร็จแล้ว") # 
 
 
 # --- 4. STATIC DATA & API SETUP ---
@@ -79,9 +80,9 @@ def check_and_create_table_if_needed():
         """)
         conn.commit()
         cur.close()
-        logging.info(f"✅ Table \"{TABLE_NAME}\" is ready.")
+        logging.info(f"✅ ตาราง \"{TABLE_NAME}\" พร้อมแล้ว.")
     except psycopg2.Error as e:
-        logging.critical(f"❌ CRITICAL: Could not create table: {e}")
+        logging.critical(f"❌ เกิดปัญหา: ไม่สามารถสร้างตารางได้: {e}")
         exit(1)
     finally:
         if conn:
@@ -89,7 +90,7 @@ def check_and_create_table_if_needed():
 
 # --- 6. DATA COLLECTION FUNCTION ---
 def collect_weather_data():
-    logging.info("📥 Starting data collection process...")
+    logging.info("📥 กำลังเริ่มกระบวนการรวบรวมข้อมูล...")
     rows_to_insert = []
     for province in provinces:
         params = API_PARAMS_TEMPLATE.copy()
@@ -113,6 +114,9 @@ def collect_weather_data():
         except (KeyError, IndexError, ValueError) as e:
             logging.warning(f"JSON Parsing Error @ {province}: {e}. Skipping...")
 
+        # หน่วงเวลาเพื่อป้องกันการเรียก API ถี่เกินไป
+        time.sleep(1.5)
+
     if rows_to_insert:
         conn = None
         try:
@@ -125,19 +129,19 @@ def collect_weather_data():
             """
             cur.executemany(insert_query, rows_to_insert)
             conn.commit()
-            logging.info(f"✅ Successfully inserted/updated {cur.rowcount} rows.")
+            logging.info(f"✅ แทรก/อัปเดตแถว {cur.rowcount} สำเร็จแล้ว")
             cur.close()
         except psycopg2.Error as e:
-            logging.error(f"❌ ERROR saving to DB: {e}")
+            logging.error(f"❌ เกิดข้อผิดพลาดในการบันทึกลงใน DB: {e}")
         finally:
             if conn:
                 conn.close()
     else:
-        logging.warning("⚠️ No data to insert after collection.")
+        logging.warning("⚠️ ไม่มีข้อมูลที่จะแทรกหลังการรวบรวมข้อมูล")
 
 # --- 7. MAIN EXECUTION BLOCK ---
 if __name__ == "__main__":
-    logging.info("🚀 Starting weather data collection process via GitHub Actions...")
+    logging.info("🚀 เริ่มต้นกระบวนการรวบรวมข้อมูลสภาพอากาศผ่าน GitHub Actions...")
     check_and_create_table_if_needed()
     collect_weather_data()
-    logging.info("✅ Weather data collection process finished.")
+    logging.info("✅ เสร็จสิ้นกระบวนการรวบรวมข้อมูลสภาพอากาศแล้ว")
