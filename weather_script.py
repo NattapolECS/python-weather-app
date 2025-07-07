@@ -11,12 +11,10 @@
 
 import logging
 import os
-import time
 from datetime import datetime
 
 import psycopg2
 import requests
-import schedule
 from dotenv import load_dotenv
 from psycopg2 import sql
 
@@ -202,22 +200,10 @@ def collect_weather_data():
 
 # ---------- 7. MAIN EXECUTION BLOCK ----------
 if __name__ == "__main__":
+    logging.info("🚀 Starting weather data collection process via GitHub Actions...")
     # ตรวจสอบและเตรียมความพร้อมของฐานข้อมูลก่อนเริ่ม
     check_and_create_database_if_needed()
     check_and_create_table_if_needed()
-
-    # ตั้งตารางเวลาในการทำงาน
-    Time_work = ["09:55","10:15", "11:00", "12:00", "13:16", "14:00", "15:00", "16:00"]       # เวลาที่ต้องการเก็บข้อมูล
-    for scheduled_time in Time_work:
-        schedule.every().day.at(scheduled_time).do(collect_weather_data)
-
-    logging.info(
-        "🚀 ระบบเริ่มทำงานแล้ว... กำลังรอตารางเวลา (กด Ctrl+C เพื่อหยุด)")
-
-    # วน Loop เพื่อให้โปรแกรมทำงานและตรวจสอบตารางเวลาตลอดไป
-    try:
-        while True:
-            schedule.run_pending()
-            time.sleep(30)
-    except KeyboardInterrupt:  #
-        logging.info("ตรวจพบการกด Ctrl+C... กำลังปิดโปรแกรม") 
+    # เรียกใช้ฟังก์ชันเก็บข้อมูลโดยตรง
+    collect_weather_data()
+    logging.info("✅ Weather data collection process finished.")
