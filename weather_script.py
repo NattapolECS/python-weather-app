@@ -54,6 +54,7 @@ DB_PORT = os.getenv("RENDER_DB_PORT")
 # หากต้องการใช้ตารางอื่น สามารถแก้ไขได้ที่นี่
 TABLE_NAME = os.getenv("TABLE_NAME")
 TMD_TOKEN = os.getenv("TMD_TOKEN")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # ตรวจสอบว่าโหลด Token และ Password สำเร็จหรือไม่
 if not DB_PASSWORD or not TMD_TOKEN:
@@ -93,8 +94,7 @@ API_PARAMS_TEMPLATE = {
 def check_and_create_database_if_needed():
     """ตรวจสอบและสร้างฐานข้อมูลหากยังไม่มี"""
     try:
-        conn = psycopg2.connect(dbname="postgres", user=DB_USER,
-                                password=DB_PASSWORD, host=DB_HOST, port=DB_PORT)
+        conn = psycopg2.connect(DATABASE_URL)  # เชื่อมต่อกับ PostgreSQL โดยใช้ URL ที่กำหนดใน .env
         conn.autocommit = True # เปิดโหมด autocommit เพื่อให้สามารถสร้างฐานข้อมูลได้
         cur = conn.cursor() # ใช้ cursor เพื่อรันคำสั่ง SQL
         cur.execute("SELECT 1 FROM pg_database WHERE datname=%s;", (DB_NAME,))  # ตรวจสอบว่ามีฐานข้อมูลนี้อยู่หรือไม่
