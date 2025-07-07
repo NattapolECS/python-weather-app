@@ -9,23 +9,19 @@ load_dotenv()
 app = FastAPI()
 
 # ---------- ENV config ----------
-DB_NAME = "Weather_data"
-DB_USER = "postgres"
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_HOST = "localhost"
-DB_PORT = "5432"
+# DB_NAME = "Weather_data"
+# DB_USER = "postgres"
+# DB_PASSWORD = os.getenv("DB_PASSWORD")
+# DB_HOST = "localhost"
+# DB_PORT = "5432"
 TABLE_NAME = "Weather"
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # ---------- DB Pool Setup ----------
 @app.on_event("startup")
 async def startup():
-    app.state.db_pool = await asyncpg.create_pool(
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_NAME,
-        host=DB_HOST,
-        port=DB_PORT
-    )
+    app.state.db_pool = await asyncpg.create_pool(dsn=DATABASE_URL)
+    
 
 @app.on_event("shutdown")
 async def shutdown():
