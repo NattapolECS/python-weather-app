@@ -12,7 +12,7 @@
 import logging
 import os
 from datetime import datetime
-
+import time
 import psycopg2
 import requests
 from dotenv import load_dotenv
