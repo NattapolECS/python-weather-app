@@ -34,6 +34,25 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+    # =======================================================
+    # เพิ่มโค้ดส่วนนี้เข้าไปเพื่อดีบักอย่างละเอียด
+      - name: Securely Debug Token Value
+        run: |
+          TOKEN_VALUE="${{ secrets.TMD_TOKEN }}"
+          if [ -z "$TOKEN_VALUE" ]; then
+            echo "::error::TMD_TOKEN secret is not set or is empty."
+            exit 1
+          else
+            TOKEN_LENGTH=${#TOKEN_VALUE}
+            TOKEN_START=${TOKEN_VALUE:0:5}
+            TOKEN_END=${TOKEN_VALUE: -5}
+            echo "Token successfully read."
+            echo "Token Length: $TOKEN_LENGTH"
+            echo "Token Starts With: $TOKEN_START..."
+            echo "Token Ends With: ...$TOKEN_END"
+          fi
+    # =======================================================
+
       # ขั้นตอนที่ 4: รันสคริปต์ Python ของเรา
       - name: Run weather collection script
         # กำหนด Environment Variables ให้กับสคริปต์ โดยดึงค่ามาจาก Secrets ที่เราตั้งไว้
