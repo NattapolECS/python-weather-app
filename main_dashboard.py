@@ -34,7 +34,7 @@ def fetch_weather_data(province, limit=24):
     """
     try:
         url = f"{API_BASE_URL}/weather?province={province}&limit={limit}"
-        response = requests.get(url, timeout=15)
+        response = requests.get(url, timeout=60)
         response.raise_for_status() # ทำให้เกิด Error ถ้า HTTP status ไม่ใช่ 2xx
         data = response.json()
         
